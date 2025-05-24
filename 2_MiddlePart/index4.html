@@ -3,209 +3,131 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Use Case Form</title>
+  <title>Use Case Table Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      margin: 30px;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(to right, #f9f9f9, #e6ecf0);
+      margin: 0;
+      padding: 40px;
     }
-    form {
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 30px;
+    }
+
+    .container {
       max-width: 700px;
-      margin-bottom: 40px;
+      background-color: #ffffff;
+      padding: 30px;
+      margin: auto;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
     }
+
     label {
       font-weight: bold;
-      display: block;
-      margin-top: 15px;
+      color: #34495e;
     }
-    input[type="text"],
-    textarea {
+
+    select, input[type="text"] {
       width: 100%;
-      padding: 8px;
-      margin-top: 4px;
-      box-sizing: border-box;
-    }
-    .field-group {
+      padding: 10px 12px;
+      margin-top: 8px;
+      margin-bottom: 15px;
       border: 1px solid #ccc;
-      padding: 10px;
-      margin-top: 10px;
+      border-radius: 6px;
+      font-size: 16px;
+      transition: border-color 0.3s;
     }
-    .sub-fields {
-      margin-top: 10px;
-      margin-left: 20px;
+
+    select:focus, input:focus {
+      border-color: #3498db;
+      outline: none;
     }
-    .sub-fields input {
-      margin-bottom: 5px;
-    }
+
     button {
-      margin-top: 10px;
-      padding: 8px 12px;
+      background-color: #3498db;
+      color: white;
+      padding: 12px 18px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-right: 10px;
+      transition: background-color 0.3s;
     }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
+      margin-top: 25px;
+      font-size: 16px;
     }
-    td, th {
-      border: 1px solid #ccc;
-      padding: 8px;
+
+    th, td {
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      text-align: center;
     }
+
     th {
-      background-color: #f2f2f2;
-      text-align: left;
+      background-color: #3498db;
+      color: white;
     }
-    ul {
-      margin: 0;
-      padding-left: 20px;
+
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    tr:hover {
+      background-color: #f1f9ff;
     }
   </style>
 </head>
 <body>
 
-<h2>Use Case Form</h2>
-<form id="useCaseForm">
-  <label for="useCaseId">Use Case ID</label>
-  <input type="text" id="useCaseId" name="useCaseId" required />
+  <h1>Use Case Table Generator</h1>
 
-  <label for="useCaseName">Use Case Name</label>
-  <input type="text" id="useCaseName" name="useCaseName" required />
+  <div class="container">
+    <label for="useCaseSelect">Select Use Case:</label>
+    <select id="useCaseSelect">
+      <option value="User Management">User Management</option>
+      <option value="Account Management">Account Management</option>
+      <option value="Visit Management">Visit Management</option>
+      <option value="Contact Management">Contact Management</option>
+      <option value="Opportunity Management">Opportunity Management</option>
+      <option value="Opportunity Line-Item Management">Opportunity Line-Item Management</option>
+      <option value="Expense Management">Expense Management</option>
+      <option value="Product and Pricebook Management">Product and Pricebook Management</option>
+      <option value="Report and Dashboard Management">Report and Dashboard Management</option>
+      <option value="Other">Other</option>
+    </select>
 
-  <label for="actors">Actors</label>
-  <input type="text" id="actors" name="actors" required />
+    <input type="text" id="otherUseCase" placeholder="Enter custom use case" style="display:none;" />
 
-  <label for="description">Description</label>
-  <textarea id="description" name="description"></textarea>
+    <button onclick="addUseCase()">Submit</button>
+    <button onclick="generateDoc()">Export to DOC</button>
 
-  <label for="assumption">Assumption</label>
-  <textarea id="assumption" name="assumption"></textarea>
-
-  <label for="preCondition">Pre-Condition</label>
-  <textarea id="preCondition" name="preCondition"></textarea>
-
-  <label for="normalFlow">Normal Flow</label>
-  <input type="text" id="normalFlow" name="normalFlow" />
-
-  <label>Fields</label>
-  <div id="fieldsContainer"></div>
-  <button type="button" onclick="addField()">Add Field</button><br><br>
-
-  <button type="submit">Submit</button>
-</form>
-
-<div id="resultTableContainer"></div>
-
-<script>
-  function addField() {
-    const container = document.getElementById("fieldsContainer");
-
-    const wrapper = document.createElement("div");
-    wrapper.className = "field-group";
-
-    const fieldInput = document.createElement("input");
-    fieldInput.type = "text";
-    fieldInput.name = "fields[]";
-    fieldInput.placeholder = "Field name";
-
-    const mandatory = document.createElement("input");
-    mandatory.type = "checkbox";
-    mandatory.className = "mandatory-checkbox";
-    mandatory.title = "Mark as Mandatory";
-
-    const picklist = document.createElement("input");
-    picklist.type = "checkbox";
-    picklist.className = "picklist-checkbox";
-    picklist.title = "Enable Picklist";
-
-    const subFieldsContainer = document.createElement("div");
-    subFieldsContainer.className = "sub-fields";
-    subFieldsContainer.style.display = "none";
-
-    const addSubFieldBtn = document.createElement("button");
-    addSubFieldBtn.type = "button";
-    addSubFieldBtn.textContent = "Add Sub Field";
-    addSubFieldBtn.style.marginTop = "5px";
-    addSubFieldBtn.onclick = () => {
-      const subInput = document.createElement("input");
-      subInput.type = "text";
-      subInput.name = "subFields[]";
-      subInput.placeholder = "Sub field value";
-      subFieldsContainer.appendChild(subInput);
-    };
-
-    picklist.addEventListener("change", function () {
-      if (picklist.checked) {
-        subFieldsContainer.innerHTML = ""; // Clear old if toggled off/on
-        subFieldsContainer.style.display = "block";
-        subFieldsContainer.appendChild(addSubFieldBtn);
-        addSubFieldBtn.click(); // Add one sub-field by default
-      } else {
-        subFieldsContainer.innerHTML = "";
-        subFieldsContainer.style.display = "none";
-      }
-    });
-
-    wrapper.appendChild(fieldInput);
-    wrapper.appendChild(document.createTextNode(" Mandatory "));
-    wrapper.appendChild(mandatory);
-    wrapper.appendChild(document.createTextNode(" Picklist "));
-    wrapper.appendChild(picklist);
-    wrapper.appendChild(subFieldsContainer);
-
-    container.appendChild(wrapper);
-  }
-
-  document.getElementById("useCaseForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    const formData = new FormData(this);
-
-    const fields = [];
-    document.querySelectorAll(".field-group").forEach(group => {
-      const fieldName = group.querySelector("input[name='fields[]']").value;
-      const isMandatory = group.querySelector(".mandatory-checkbox").checked;
-      const picklistChecked = group.querySelector(".picklist-checkbox").checked;
-
-      let subFields = [];
-      if (picklistChecked) {
-        group.querySelectorAll(".sub-fields input[type='text']").forEach(input => {
-          if (input.value.trim()) subFields.push(input.value.trim());
-        });
-      }
-
-      fields.push({ name: fieldName, mandatory: isMandatory, subFields });
-    });
-
-    const resultHTML = `
-      <h3>Submitted Use Case</h3>
-      <table>
-        <tr><th>Use Case ID</th><td>${formData.get("useCaseId")}</td></tr>
-        <tr><th>Use Case Name</th><td>${formData.get("useCaseName")}</td></tr>
-        <tr><th>Actors</th><td>${formData.get("actors")}</td></tr>
-        <tr><th>Description</th><td>${formData.get("description")}</td></tr>
-        <tr><th>Assumption</th><td>${formData.get("assumption")}</td></tr>
-        <tr><th>Pre-Condition</th><td>${formData.get("preCondition")}</td></tr>
-        <tr><th>Normal Flow</th><td>${formData.get("normalFlow")}</td></tr>
-        <tr><th>Fields</th>
-          <td>
-            <ul>
-              ${fields.map(field => `
-                <li>
-                  ${field.name}${field.mandatory ? ' *' : ''}
-                  ${field.subFields.length ? `
-                    <ul>
-                      ${field.subFields.map(sub => `<li>${sub}</li>`).join('')}
-                    </ul>` : ''
-                  }
-                </li>
-              `).join('')}
-            </ul>
-          </td>
+    <table id="useCaseTable">
+      <thead>
+        <tr>
+          <th>Use Case ID</th>
+          <th>Use Case Name</th>
         </tr>
-      </table>
-    `;
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
-    document.getElementById("resultTableContainer").innerHTML = resultHTML;
-  });
-</script>
-
+  <script src="docx.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
